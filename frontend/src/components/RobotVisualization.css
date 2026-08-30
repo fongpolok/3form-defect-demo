@@ -1,0 +1,25 @@
+.robot-viz {
+  position: relative; /* anchors the absolutely-positioned canvas below */
+  width: 100%;
+  min-height: 320px;
+  background: #0e0f13;
+  border: 1px solid #333;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* The canvas is sized absolutely (not in normal flow) so its own intrinsic
+   pixel dimensions can never feed back into this container's layout size —
+   without this, a ResizeObserver-driven canvas resize can trigger a
+   runaway feedback loop with a flex-item ancestor (canvas grows ->
+   ancestor's flex min-content grows with it -> ResizeObserver reports a
+   bigger container -> canvas grows again). Confirmed reproducible without
+   this fix: the viz panel would grow from ~340px to 1000+px after a few
+   pose updates. */
+.robot-viz canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}

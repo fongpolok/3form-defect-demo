@@ -1,0 +1,24 @@
+# pip equivalent of ../environment.yml, for the hosted Docker deploy —
+# local dev still uses the conda env; this only exists for
+# Dockerfile.render. Test-only deps (pytest, pytest-cov) are intentionally
+# omitted, this is the runtime image, not the dev/test env.
+numpy
+opencv-python-headless
+Pillow
+scikit-image
+scikit-learn
+pyserial
+PyYAML
+openpyxl
+pandas
+httpx
+fastapi
+uvicorn[standard]
+pydantic-settings
+python-multipart
+websockets
+torch
+torchvision
+ultralytics
+robodk
+trimesh

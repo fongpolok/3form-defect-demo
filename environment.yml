@@ -1,0 +1,63 @@
+# Conda environment for the pattern-light inspection station backend.
+#
+# Create it with:
+#   conda env create -f environment.yml
+# Update an existing one after editing this file with:
+#   conda env update -f environment.yml --prune
+#
+# Activate with:
+#   conda activate cognex-inspect
+name: cognex-inspect
+channels:
+  - conda-forge
+  - nodefaults   # explicitly skip Anaconda's "defaults" channel (repo.anaconda.com),
+                 # which requires accepting Anaconda's commercial Terms of Service —
+                 # conda-forge is fully open-source and needs no such acceptance
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - opencv
+  - pillow
+  - scikit-image
+  - scikit-learn
+  - pyserial
+  - pyyaml
+  - openpyxl
+  - pandas
+  - pytest
+  - pytest-cov
+  - httpx
+  - pip:
+      - fastapi
+      - "uvicorn[standard]"
+      - pydantic-settings
+      - python-multipart
+      - websockets
+      # Deep-learning stack for detection options B (pretrained anomaly detection) and C
+      # (small supervised model). CPU-only wheels; fine for a dev machine / demo.
+      - torch
+      - torchvision
+      - ultralytics
+      # RoboDK's Python API (a single module, no license key required to import —
+      # license only gates certain automation features at runtime). It talks
+      # to the RoboDK *desktop app* over a local socket; without the app
+      # installed and running, calls that need a live station fail with a
+      # clear "couldn't connect" error rather than hanging or faking success.
+      - robodk
+      # Mesh loading (STL) for the CAD-path viewpoint-generation math, which
+      # is pure geometry and works standalone without RoboDK. STEP/IGES import
+      # goes through RoboDK's own CAD import instead (it has a real kernel for
+      # those formats; trimesh's STEP support is unreliable).
+      - trimesh
+      # NOTE: `ur-rtde` (real UR5e control) is intentionally NOT listed here.
+      # It has no prebuilt wheel for macOS arm64 and fails to build from source
+      # on a plain conda-forge toolchain (confirmed 2026-08-27). Since no
+      # physical UR5e is on hand yet to test against anyway, it's an optional,
+      # separate install for whoever first wires up real hardware:
+      #   conda activate cognex-inspect
+      #   conda install -c conda-forge boost cmake  # build deps it needs
+      #   pip install ur-rtde
+      # `ur5e_rtde_driver.py` imports it lazily and only errors if you select
+      # the real-UR5e driver in config.yaml, so its absence doesn't block
+      # anything else in the app.

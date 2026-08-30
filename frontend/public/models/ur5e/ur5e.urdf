@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!--
+  Real UR5e kinematic chain and visual meshes, for the pendant's 3D view.
+
+  This is a hand-flattened URDF (no collision/inertial — visualization only)
+  built from the official ROS-Industrial `universal_robot` package
+  (https://github.com/ros-industrial/universal_robot, noetic-devel branch,
+  BSD-3-Clause license — see LICENSE_AND_ATTRIBUTION.md in this folder).
+  Every joint origin/axis and mesh visual offset below is copied directly
+  from that package's ur5e default_kinematics.yaml, physical_parameters.yaml,
+  and visual_parameters.yaml (fetched 2026-08-27), not estimated — this is
+  the same data Universal Robots' own ROS driver uses.
+-->
+<robot name="ur5e">
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 3.141592653589793"/>
+      <geometry><mesh filename="visual/base.dae"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="shoulder_pan_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="shoulder_link"/>
+    <origin xyz="0 0 0.1625" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.28318530718" upper="6.28318530718" effort="150" velocity="3.14"/>
+  </joint>
+  <link name="shoulder_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 3.141592653589793"/>
+      <geometry><mesh filename="visual/shoulder.dae"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="shoulder_lift_joint" type="revolute">
+    <parent link="shoulder_link"/>
+    <child link="upper_arm_link"/>
+    <origin xyz="0 0 0" rpy="1.570796327 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.28318530718" upper="6.28318530718" effort="150" velocity="3.14"/>
+  </joint>
+  <link name="upper_arm_link">
+    <visual>
+      <origin xyz="0 0 0.138" rpy="1.5707963267948966 0 -1.5707963267948966"/>
+      <geometry><mesh filename="visual/upperarm.dae"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="elbow_joint" type="revolute">
+    <parent link="upper_arm_link"/>
+    <child link="forearm_link"/>
+    <origin xyz="-0.425 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14159265" upper="3.14159265" effort="150" velocity="3.14"/>
+  </joint>
+  <link name="forearm_link">
+    <visual>
+      <origin xyz="0 0 0.007" rpy="1.5707963267948966 0 -1.5707963267948966"/>
+      <geometry><mesh filename="visual/forearm.dae"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="wrist_1_joint" type="revolute">
+    <parent link="forearm_link"/>
+    <child link="wrist_1_link"/>
+    <origin xyz="-0.3922 0 0.1333" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.28318530718" upper="6.28318530718" effort="28" velocity="6.28"/>
+  </joint>
+  <link name="wrist_1_link">
+    <visual>
+      <origin xyz="0 0 -0.127" rpy="1.5707963267948966 0 0"/>
+      <geometry><mesh filename="visual/wrist1.dae"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="wrist_2_joint" type="revolute">
+    <parent link="wrist_1_link"/>
+    <child link="wrist_2_link"/>
+    <origin xyz="0 -0.0997 -2.044881182297852e-11" rpy="1.570796327 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.28318530718" upper="6.28318530718" effort="28" velocity="6.28"/>
+  </joint>
+  <link name="wrist_2_link">
+    <visual>
+      <origin xyz="0 0 -0.0997" rpy="0 0 0"/>
+      <geometry><mesh filename="visual/wrist2.dae"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="wrist_3_joint" type="revolute">
+    <parent link="wrist_2_link"/>
+    <child link="wrist_3_link"/>
+    <origin xyz="0 0.0996 -2.042830148012698e-11" rpy="1.570796326589793 3.141592653589793 3.141592653589793"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.28318530718" upper="6.28318530718" effort="28" velocity="6.28"/>
+  </joint>
+  <link name="wrist_3_link">
+    <visual>
+      <origin xyz="0 0 -0.0989" rpy="1.5707963267948966 0 0"/>
+      <geometry><mesh filename="visual/wrist3.dae"/></geometry>
+    </visual>
+  </link>
+</robot>

@@ -1,0 +1,31 @@
+.stop-btn {
+  flex-shrink: 0;
+  border: 1px solid #d1121a;
+  background: #3a1414;
+  color: #f0a3a3;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.stop-btn:hover:not(:disabled) {
+  background: #d1121a;
+  color: #fff;
+}
+.stop-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.stop-btn--stopped {
+  background: #d1121a;
+  color: #fff;
+  animation: stop-btn-pulse 1.2s infinite;
+}
+
+@keyframes stop-btn-pulse {
+  0%, 100% { background: #d1121a; }
+  50% { background: #7a0d13; }
+}

@@ -1,0 +1,34 @@
+# Default tunable settings for the inspection station backend.
+# Override per-machine with environment variables (INSPECT_SECTION__KEY=value)
+# instead of editing this checked-in file where possible.
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins:
+    - "http://localhost:5173"
+    - "http://127.0.0.1:5173"
+
+logging:
+  level: "INFO"
+  log_dir: "logs"
+  log_file: "inspection_station.log"
+  max_bytes: 5000000
+  backup_count: 5
+
+safety:
+  # Set true only once a real hardwired E-stop circuit is verified on the machine.
+  hardware_estop_present: false
+
+robot:
+  driver: "simulated"   # simulated | ur5e_rtde | robodk
+  ur5e_host: "192.168.1.100"
+  ur5e_rtde_port: 30004
+  default_speed: 0.5
+  default_acceleration: 0.5
+
+camera:
+  source: "video_file"  # video_file | opencv_generic | insight_native
+  demo_video_path: "data/demo_video/sample_inspection.mp4"
+  device_index: 0
+  insight_ip: "192.168.1.50"

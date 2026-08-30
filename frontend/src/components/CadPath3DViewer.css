@@ -1,0 +1,21 @@
+.cad-viz {
+  position: relative; /* anchors the absolutely-positioned canvas below */
+  width: 100%;
+  min-height: 480px;
+  background: #0e0f13;
+  border: 1px solid #333;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Same fix as .robot-viz (see RobotVisualization.css): decouple the
+   canvas's own intrinsic size from its container's layout size so a
+   ResizeObserver-driven resize can't feed back into a runaway growth
+   loop with a flex/grid ancestor. */
+.cad-viz canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}

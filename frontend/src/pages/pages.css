@@ -1,0 +1,145 @@
+.panel {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  padding: 16px 20px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #1b1c22;
+}
+
+.panel h2 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-header h2 {
+  margin: 0 0 4px;
+}
+
+.panel .sub {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+}
+
+.row label {
+  width: 110px;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+button {
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #2a2b33;
+  color: #eee;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+button:hover:not(:disabled) {
+  background: #35363f;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input[type="number"], input[type="text"], select {
+  background: #14151a;
+  border: 1px solid #444;
+  color: #eee;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+}
+
+input[type="range"] {
+  flex: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+th, td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid #2a2b33;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge.pass { background: #163a1f; color: #7be08f; }
+.badge.fail { background: #3a1616; color: #e07b7b; }
+.badge.ready { background: #163a1f; color: #7be08f; }
+.badge.blocked { background: #3a2f16; color: #e0b97b; }
+
+.error-text {
+  color: #e07b7b;
+  font-size: 0.8rem;
+}
+
+.pendant-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  max-width: 1000px;
+  margin: 0 auto 24px;
+}
+.pendant-layout .viz-panel {
+  flex: 0 0 340px;
+  min-width: 0; /* flex items default to min-width:auto, which lets replaced
+                   content (the 3D canvas) grow this past its 340px basis */
+  margin: 0;
+}
+.pendant-layout .jog-panel {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .pendant-layout {
+    flex-direction: column;
+  }
+  .pendant-layout .viz-panel {
+    flex-basis: auto;
+    width: 100%;
+  }
+}
+
+.tabnav {
+  display: flex;
+  gap: 4px;
+  max-width: 1000px;
+  margin: 0 auto 16px;
+  flex-wrap: wrap;
+}
+.tabnav button {
+  background: transparent;
+  border: 1px solid transparent;
+}
+.tabnav button.active {
+  background: #2a2b33;
+  border-color: #444;
+}

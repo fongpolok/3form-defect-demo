@@ -1,0 +1,23 @@
+# Python
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/logs/*.log*
+*.pyc
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# OS
+.DS_Store
+
+# Large/local-only data
+backend/data/demo_video/*
+!backend/data/demo_video/.gitkeep
+backend/data/sample_images/*
+!backend/data/sample_images/.gitkeep
+backend/data/recipes/
+backend/data/cad_uploads/
+backend/data/robodk_frames/
