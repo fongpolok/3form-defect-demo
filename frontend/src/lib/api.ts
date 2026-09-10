@@ -156,4 +156,14 @@ export const api = {
     return res.json() as Promise<{ viewpoints: { position: number[]; normal: number[] }[]; mesh_area_mm2: number; robodk_simulation_available: boolean }>;
   },
   simulateRoboDK: () => request<{ frame_count: number; output_dir: string }>("/api/robodk/simulate", { method: "POST" }),
+  listCadUploads: () => request<string[]>("/api/robodk/uploads"),
+  /** Fetches a previously-uploaded STL from the server and wraps it as a File,
+   * so picking one from the dropdown behaves exactly like re-uploading it —
+   * no other code needs to know the difference. */
+  fetchCadUpload: async (filename: string): Promise<File> => {
+    const res = await fetch(`${API_BASE_URL}/api/robodk/uploads/${encodeURIComponent(filename)}`);
+    if (!res.ok) throw new Error(`fetchCadUpload failed (${res.status}): ${await res.text()}`);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: "application/sla" });
+  },
 };

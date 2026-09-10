@@ -25,6 +25,9 @@ export function PendantPage() {
   // control surface (jog, recipe, CAD-driven motion) lives on one page.
   const [roboDkStatus, setRoboDkStatus] = useState<{ available: boolean; message: string } | null>(null);
   const [cadFile, setCadFile] = useState<File | null>(null);
+  const [existingUploads, setExistingUploads] = useState<string[]>([]);
+  const [selectedUpload, setSelectedUpload] = useState("");
+  const [uploadLoadError, setUploadLoadError] = useState<string | null>(null);
   // Camera-to-surface standoff distance — displayed as "projected focal
   // length" per the vision team's terminology; still sent to the backend
   // as standoff_mm (see api.generatePath), which is the same physical
@@ -42,7 +45,22 @@ export function PendantPage() {
     api.getPose().then((p) => setPose(p.joints_deg)).catch(() => {});
     refreshRecipe();
     api.getRoboDKStatus().then(setRoboDkStatus).catch(() => {});
+    refreshUploads();
   }, []);
+
+  const refreshUploads = () => api.listCadUploads().then(setExistingUploads).catch(() => {});
+
+  const pickExistingUpload = async (filename: string) => {
+    setSelectedUpload(filename);
+    setUploadLoadError(null);
+    if (!filename) return;
+    try {
+      const file = await api.fetchCadUpload(filename);
+      setCadFile(file);
+    } catch (e) {
+      setUploadLoadError(e instanceof Error ? e.message : String(e));
+    }
+  };
 
   useEffect(() => {
     if (livePose) setPose(livePose);
@@ -111,6 +129,7 @@ export function PendantPage() {
       setViewpoints(r.viewpoints);
       setMeshArea(r.mesh_area_mm2);
       setRoboDkStatus((s) => (s ? { ...s, available: r.robodk_simulation_available } : s));
+      refreshUploads(); // the backend just saved cadFile server-side too — pick it up in the dropdown
     } catch (e) {
       setCadError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -240,8 +259,20 @@ export function PendantPage() {
         )}
         <div className="row">
           <label>CAD file (.stl)</label>
-          <input type="file" accept=".stl" onChange={(e) => setCadFile(e.target.files?.[0] ?? null)} />
+          <input
+            type="file" accept=".stl"
+            onChange={(e) => { setSelectedUpload(""); setUploadLoadError(null); setCadFile(e.target.files?.[0] ?? null); }}
+          />
         </div>
+        <div className="row">
+          <label>Or pick existing</label>
+          <select value={selectedUpload} onChange={(e) => pickExistingUpload(e.target.value)} style={{ flex: 1 }}>
+            <option value="">— select a previously-uploaded .stl —</option>
+            {existingUploads.map((name) => <option key={name} value={name}>{name}</option>)}
+          </select>
+          <button onClick={refreshUploads} title="Refresh the list">↻</button>
+        </div>
+        {uploadLoadError && <div className="error-text">{uploadLoadError}</div>}
         <div className="row">
           <label>Projected focal length (mm)</label>
           <input type="number" value={focalLengthMM} onChange={(e) => setFocalLengthMM(Number(e.target.value))} style={{ width: 80 }} />
@@ -250,6 +281,7 @@ export function PendantPage() {
           <label style={{ width: 90 }}>Max points</label>
           <input type="number" value={maxPoints} onChange={(e) => setMaxPoints(Number(e.target.value))} style={{ width: 80 }} />
         </div>
+        {cadFile && <div className="sub">Selected: {cadFile.name}</div>}
         <div className="row">
           <button onClick={generateCadPath} disabled={!cadFile || cadBusy}>Generate path</button>
           <button onClick={simulateInRoboDK} disabled={cadBusy}>Simulate in RoboDK</button>

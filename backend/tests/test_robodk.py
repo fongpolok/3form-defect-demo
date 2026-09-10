@@ -66,3 +66,36 @@ def test_generate_path_endpoint_with_uploaded_stl():
 
             sim = client.post("/api/robodk/simulate")
             assert sim.status_code == 503
+
+
+def test_list_and_serve_uploads():
+    # generate-path saves into the *real* UPLOAD_DIR (it's the whole point —
+    # so later /uploads calls can see it) — clean up what this test adds so
+    # repeat runs don't pollute the real uploads list with test artifacts.
+    from app.api.routers.robodk import UPLOAD_DIR
+
+    box = trimesh.creation.box(extents=[20, 20, 20])
+    with tempfile.TemporaryDirectory() as tmp:
+        stl_path = Path(tmp) / "listing_test.stl"
+        box.export(stl_path)
+
+        with TestClient(app) as client:
+            with open(stl_path, "rb") as f:
+                client.post(
+                    "/api/robodk/generate-path",
+                    files={"file": ("listing_test.stl", f, "application/octet-stream")},
+                    params={"standoff_mm": 10, "spacing_mm": 10, "max_points": 20},
+                )
+
+            names = client.get("/api/robodk/uploads").json()
+            assert "listing_test.stl" in names
+
+            r = client.get("/api/robodk/uploads/listing_test.stl")
+            assert r.status_code == 200
+            assert len(r.content) == stl_path.stat().st_size
+
+            # path traversal attempts must not escape the upload directory
+            escape = client.get("/api/robodk/uploads/..%2F..%2Fconfig.yaml")
+            assert escape.status_code == 404
+
+    (UPLOAD_DIR / "listing_test.stl").unlink(missing_ok=True)

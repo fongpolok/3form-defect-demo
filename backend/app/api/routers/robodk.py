@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.config import BACKEND_DIR
@@ -44,6 +45,31 @@ def status() -> StatusResponse:
         return StatusResponse(available=True, message="Connected to RoboDK")
     except RoboDKUnavailableError as exc:
         return StatusResponse(available=False, message=str(exc))
+
+
+def _safe_upload_path(filename: str) -> Path:
+    """Resolves `filename` inside UPLOAD_DIR, rejecting any attempt (via
+    `..`, an absolute path, etc.) to reach outside it."""
+    candidate = (UPLOAD_DIR / filename).resolve()
+    if candidate.parent != UPLOAD_DIR.resolve() or not candidate.is_file():
+        raise HTTPException(status_code=404, detail=f"No uploaded file named {filename!r}")
+    return candidate
+
+
+@router.get("/uploads", response_model=list[str])
+def list_uploads() -> list[str]:
+    """Previously-uploaded CAD files still on disk (data/cad_uploads/), so
+    the frontend can offer a "pick an existing file" dropdown instead of
+    requiring a fresh upload every time — handy for a large STL like a
+    Benchy you don't want to re-transfer on every path-generation tweak."""
+    names = sorted(p.name for p in UPLOAD_DIR.glob("*") if p.is_file() and p.suffix.lower() in (".stl",))
+    return names
+
+
+@router.get("/uploads/{filename}")
+def get_upload(filename: str) -> FileResponse:
+    path = _safe_upload_path(filename)
+    return FileResponse(path, media_type="application/sla", filename=filename)
 
 
 class ViewpointsResponse(BaseModel):
