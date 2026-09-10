@@ -5,6 +5,7 @@ import { Robot3DViewer } from "../components/Robot3DViewer";
 import { StopButton } from "../components/StopButton";
 import { CadPath3DViewer, type Viewpoint } from "../components/CadPath3DViewer";
 import { CadPathRobotViewer } from "../components/CadPathRobotViewer";
+import { fetchSampleStlFile, SAMPLE_STL_FILES } from "../lib/sampleStlFiles";
 import "./pages.css";
 
 const JOINT_NAMES = ["Joint 1", "Joint 2", "Joint 3", "Joint 4", "Joint 5", "Joint 6"];
@@ -50,13 +51,22 @@ export function PendantPage() {
 
   const refreshUploads = () => api.listCadUploads().then(setExistingUploads).catch(() => {});
 
-  const pickExistingUpload = async (filename: string) => {
-    setSelectedUpload(filename);
+  // Dropdown values are prefixed ("sample:"/"upload:") to disambiguate the
+  // two sources — a bundled static file needs no backend to fetch, a
+  // server-uploaded one does (see sampleStlFiles.ts for why both exist).
+  const pickExistingUpload = async (value: string) => {
+    setSelectedUpload(value);
     setUploadLoadError(null);
-    if (!filename) return;
+    if (!value) return;
     try {
-      const file = await api.fetchCadUpload(filename);
-      setCadFile(file);
+      if (value.startsWith("sample:")) {
+        const name = value.slice("sample:".length);
+        const sample = SAMPLE_STL_FILES.find((s) => s.name === name);
+        if (!sample) throw new Error(`Unknown bundled sample "${name}"`);
+        setCadFile(await fetchSampleStlFile(sample));
+      } else if (value.startsWith("upload:")) {
+        setCadFile(await api.fetchCadUpload(value.slice("upload:".length)));
+      }
     } catch (e) {
       setUploadLoadError(e instanceof Error ? e.message : String(e));
     }
@@ -267,10 +277,25 @@ export function PendantPage() {
         <div className="row">
           <label>Or pick existing</label>
           <select value={selectedUpload} onChange={(e) => pickExistingUpload(e.target.value)} style={{ flex: 1 }}>
-            <option value="">— select a previously-uploaded .stl —</option>
-            {existingUploads.map((name) => <option key={name} value={name}>{name}</option>)}
+            <option value="">— select an .stl —</option>
+            <optgroup label="Bundled samples (always available)">
+              {SAMPLE_STL_FILES.map((s) => (
+                <option key={`sample:${s.name}`} value={`sample:${s.name}`}>{s.name}</option>
+              ))}
+            </optgroup>
+            {existingUploads.length > 0 && (
+              <optgroup label="Uploaded to backend (needs a reachable server)">
+                {existingUploads.map((name) => (
+                  <option key={`upload:${name}`} value={`upload:${name}`}>{name}</option>
+                ))}
+              </optgroup>
+            )}
           </select>
-          <button onClick={refreshUploads} title="Refresh the list">↻</button>
+          <button onClick={refreshUploads} title="Refresh the backend-uploaded list">↻</button>
+        </div>
+        <div className="sub">
+          Bundled samples load with no backend needed; "Generate path" itself still calls the backend either way
+          (that's where the actual geometry work happens).
         </div>
         {uploadLoadError && <div className="error-text">{uploadLoadError}</div>}
         <div className="row">
